@@ -1,8 +1,10 @@
 from flask import Flask,jsonify,request
 from bs4 import BeautifulSoup
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)
 
 def fetch_stock_data(ticker, exchange):
     url = f"https://www.google.com/finance/quote/{ticker}:{exchange}"
