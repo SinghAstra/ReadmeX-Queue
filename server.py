@@ -1,4 +1,4 @@
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from bs4 import BeautifulSoup
 import requests
 
@@ -22,8 +22,10 @@ def fetch_stock_price(ticker, exchange):
 
 @app.route('/stock_price')
 def get_stock_price():
-    ticker = 'INFY'
-    exchange = 'NSE'
+    ticker = request.args.get('ticker')
+    exchange = request.args.get('exchange')
+    if not ticker or not exchange:
+        return jsonify({'error': 'Ticker and exchange are required'}), 400
     price = fetch_stock_price(ticker, exchange)
     if price is not None:
         return jsonify({'price': price})
