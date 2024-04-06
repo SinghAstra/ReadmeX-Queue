@@ -11,12 +11,6 @@
   <a href="https://chat-webapp-mern.netlify.app/"><img src="https://github.com/SinghAstra/Chat-WebApp/blob/main/images/chat.png"/></a>
 </div>
 
-## Features
-
-- Real-time messaging: Users can send and receive messages instantly.
-- User authentication: Secure sign up, log in, and log out functionality.
-- Group chat: Users can create and join group chats.
-- User search: Users can search for other users to start a conversation.
 
 
 ## Installation
@@ -40,27 +34,27 @@
 
 ## EndPoints
   - **GET /stock_price** :  Fetches stock price and related information for a given stock ticker and exchange.
-  - **Query Parameters**:
-    - ticker: The stock ticker symbol (required)
-    - exchange: The stock exchange (required)
-    - Example Request :
-      ```console
-      http://localhost:5000](https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
-      ```
-      - Example Response :
-      ```console
-      {
-      "Avg Volume": "20.96M",
-      "Day range": "$151.08 - $154.84",
-      "Dividend yield": "-",
-      "Market cap": "1.90T USD",
-      "P/E ratio": "28.37",
-      "Previous close": "$151.94",
-      "Primary exchange": "NASDAQ",
-      "Stock Price": "$153.94",
-      "Year range": "$103.27 - $157.00"
-      }
-      ```
+    - **Query Parameters**:
+      - ticker: The stock ticker symbol (required)
+      - exchange: The stock exchange (required)
+      - Example Request :
+        ```console
+        http://localhost:5000](https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
+        ```
+        - Example Response :
+        ```console
+        {
+        "Avg Volume": "20.96M",
+        "Day range": "$151.08 - $154.84",
+        "Dividend yield": "-",
+        "Market cap": "1.90T USD",
+        "P/E ratio": "28.37",
+        "Previous close": "$151.94",
+        "Primary exchange": "NASDAQ",
+        "Stock Price": "$153.94",
+        "Year range": "$103.27 - $157.00"
+        }
+        ```
   - **GET /** - Welcome message.
 
 
