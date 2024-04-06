@@ -21,7 +21,7 @@
 ### Installation
 1. Clone the repository:
    ```console
-       git clone <repository_url>
+       git clone https://github.com/SinghAstra/Stock-API.git
    ```
 2. Install dependencies:
    ```console
@@ -54,7 +54,7 @@
       - exchange: The stock exchange (required)
       - Example Request :
         ```console
-        http://localhost:5000](https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
+        https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
         ```
         - Example Response :
         ```console
@@ -71,7 +71,7 @@
         }
         ```
   - **GET /** - Welcome message.
->>>>>>> 6ff03bb7b0129decaba4cdc769c6bd9916740750
+
 
 - **GET /stock_price** : Fetches stock price and related information for a given stock ticker and exchange.
   - **Query Parameters**:
