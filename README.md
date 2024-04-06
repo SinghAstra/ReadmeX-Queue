@@ -24,7 +24,7 @@
 
 1. Clone the repository:
    ```console
-       git clone <repository_url>
+       git clone https://github.com/SinghAstra/Stock-API.git
    ```
 2. Install dependencies:
    ```console
@@ -40,6 +40,33 @@
 2. Access the API at http://localhost:5000/
 
 ### EndPoints
+<<<<<<< HEAD
+=======
+  - **GET /stock_price** :  Fetches stock price and related information for a given stock ticker and exchange.
+    - **Query Parameters**:
+      - ticker: The stock ticker symbol (required)
+      - exchange: The stock exchange (required)
+      - Example Request :
+        ```console
+        https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
+        ```
+        - Example Response :
+        ```console
+        {
+        "Avg Volume": "20.96M",
+        "Day range": "$151.08 - $154.84",
+        "Dividend yield": "-",
+        "Market cap": "1.90T USD",
+        "P/E ratio": "28.37",
+        "Previous close": "$151.94",
+        "Primary exchange": "NASDAQ",
+        "Stock Price": "$153.94",
+        "Year range": "$103.27 - $157.00"
+        }
+        ```
+  - **GET /** - Welcome message.
+
+>>>>>>> fbc98d9b6dfb6bdb470dd8e0f113e1704b79225b
 
 - **GET /stock_price** : Fetches stock price and related information for a given stock ticker and exchange.
   - **Query Parameters**:
