@@ -8,13 +8,12 @@
 <p>This API allows to fetch stock price and related information for a given stock ticker and exchange..</p>
 
 <div align="center">
-  <a href="https://chat-webapp-mern.netlify.app/"><img src="https://github.com/SinghAstra/Chat-WebApp/blob/main/images/chat.png"/></a>
+  <a href="https://stock-api-gbbj.onrender.com"><img src="https://github.com/SinghAstra/Stock-API/blob/main/images/trading.png"/></a>
 </div>
 
 
 
-## Installation
-
+### Installation
 1. Clone the repository:
    ```console
        git clone <repository_url>
@@ -25,14 +24,15 @@
        pip install -r requirements.txt
    ```
 
-## Usage
+### Usage
 1. Run the flask server:
     ```console
     python app.py
     ```
+    
 2. Access the API at http://localhost:5000/
 
-## EndPoints
+### EndPoints
   - **GET /stock_price** :  Fetches stock price and related information for a given stock ticker and exchange.
     - **Query Parameters**:
       - ticker: The stock ticker symbol (required)
@@ -69,5 +69,5 @@
 [stars-url]: https://github.com/SinghAstra/Stock-API/stargazers
 [issues-shield]: https://img.shields.io/github/issues/SinghAstra/Stock-API.svg?style=for-the-badge
 [issues-url]: https://github.com/SinghAstra/Stock-API/issues
-[codacy-repo]:https://app.codacy.com/project/badge/Grade/614b6b9701ff4d969ab7c06cae5ef61b
+[codacy-repo]:https://app.codacy.com/project/badge/Grade/98084a8c9b46418b82f3dc3cc80bcd26
 [codacy-badge]:https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
