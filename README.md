@@ -103,16 +103,12 @@
 [stars-url]: https://github.com/SinghAstra/Stock-API/stargazers
 [issues-shield]: https://img.shields.io/github/issues/SinghAstra/Stock-API.svg?style=for-the-badge
 [issues-url]: https://github.com/SinghAstra/Stock-API/issues
-
-<<<<<<< HEAD
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [python-url]: https://www.python.org/
 [flask-badge]: https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white
 [python-badge]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
 [codacy-repo]: https://app.codacy.com/project/badge/Grade/614b6b9701ff4d969ab7c06cae5ef61b
 [codacy-badge]: https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
-=======
 [codacy-repo]:https://app.codacy.com/project/badge/Grade/98084a8c9b46418b82f3dc3cc80bcd26
 [codacy-badge]:https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
 
-> > > > > > > 6ff03bb7b0129decaba4cdc769c6bd9916740750
