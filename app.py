@@ -46,4 +46,4 @@ def index():
     return '<h1>Welcome to Stock Price API!</h1>'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
