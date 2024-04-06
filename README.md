@@ -4,10 +4,9 @@
 ![Issues][issues-shield]
 ![flask-url][flask-badge]
 ![python-url][python-badge]
+![codacy-url][codacy-badge]
 
 # Stock API
-
-[![Codacy Badge][codacy-repo]][codacy-badge]
 
 <p>This API allows to fetch stock price and related information for a given stock ticker and exchange..</p>
 
@@ -40,33 +39,6 @@
 2. Access the API at http://localhost:5000/
 
 ### EndPoints
-<<<<<<< HEAD
-=======
-  - **GET /stock_price** :  Fetches stock price and related information for a given stock ticker and exchange.
-    - **Query Parameters**:
-      - ticker: The stock ticker symbol (required)
-      - exchange: The stock exchange (required)
-      - Example Request :
-        ```console
-        https://stock-api-gbbj.onrender.com/stock_price?ticker=GOOG&exchange=NASDAQ
-        ```
-        - Example Response :
-        ```console
-        {
-        "Avg Volume": "20.96M",
-        "Day range": "$151.08 - $154.84",
-        "Dividend yield": "-",
-        "Market cap": "1.90T USD",
-        "P/E ratio": "28.37",
-        "Previous close": "$151.94",
-        "Primary exchange": "NASDAQ",
-        "Stock Price": "$153.94",
-        "Year range": "$103.27 - $157.00"
-        }
-        ```
-  - **GET /** - Welcome message.
-
->>>>>>> fbc98d9b6dfb6bdb470dd8e0f113e1704b79225b
 
 - **GET /stock_price** : Fetches stock price and related information for a given stock ticker and exchange.
   - **Query Parameters**:
@@ -107,8 +79,5 @@
 [python-url]: https://www.python.org/
 [flask-badge]: https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white
 [python-badge]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
-[codacy-repo]: https://app.codacy.com/project/badge/Grade/614b6b9701ff4d969ab7c06cae5ef61b
+[codacy-url]: https://app.codacy.com/
 [codacy-badge]: https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
-[codacy-repo]:https://app.codacy.com/project/badge/Grade/98084a8c9b46418b82f3dc3cc80bcd26
-[codacy-badge]:https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
-
