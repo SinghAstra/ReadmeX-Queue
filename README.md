@@ -4,7 +4,7 @@
 ![Issues][issues-shield]
 ![flask-url][flask-badge]
 ![python-url][python-badge]
-![codacy-url][codacy-badge]
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/98084a8c9b46418b82f3dc3cc80bcd26)](https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # Stock API
 
@@ -79,5 +79,3 @@
 [python-url]: https://www.python.org/
 [flask-badge]: https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white
 [python-badge]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
-[codacy-url]: https://app.codacy.com/
-[codacy-badge]: https://app.codacy.com/gh/SinghAstra/Stock-API/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
