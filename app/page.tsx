@@ -1,5 +1,10 @@
+import { Navbar } from "@/components/layout/Navbar";
+
 export default function Home() {
   return (
-    <div className="flex items-center justify-center min-h-screen">Home</div>
+    <div className="container mx-auto min-h-screen">
+      <Navbar />
+      Home
+    </div>
   );
 }
