@@ -1,13 +1,11 @@
 import CoverImage from "@/components/home/cover-image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Post } from "@/interfaces/post";
-import { getAllPosts, getPostBySlug } from "@/lib/api";
+import { getPostBySlug } from "@/lib/api";
 import markdownToHtml from "@/lib/markdown-to-html";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import React from "react";
-import markdownStyles from "./markdown-styles.module.css";
 
 type Params = {
   params: Promise<{
@@ -41,7 +39,7 @@ async function PostDetailPage(props: Params) {
       <CoverImage title={post.title} src={post.coverImage} />
       <div className="max-w-2xl mx-auto">
         <div
-          className={markdownStyles["markdown"]}
+          className="markdown"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       </div>
@@ -68,12 +66,12 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
+// export async function generateStaticParams() {
+//   const posts = getAllPosts();
 
-  return posts.map((post: Post) => ({
-    slug: post.slug,
-  }));
-}
+//   return posts.map((post: Post) => ({
+//     slug: post.slug,
+//   }));
+// }
 
 export default PostDetailPage;
