@@ -1,7 +1,10 @@
+import CoverImage from "@/components/home/cover-image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getPostBySlug } from "@/lib/api";
+import { Post } from "@/interfaces/post";
+import { getAllPosts, getPostBySlug } from "@/lib/api";
 import markdownToHtml from "@/lib/markdown-to-html";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import React from "react";
 import markdownStyles from "./markdown-styles.module.css";
@@ -12,7 +15,7 @@ type Params = {
   }>;
 };
 
-async function Post(props: Params) {
+async function PostDetailPage(props: Params) {
   const params = await props.params;
   const post = getPostBySlug(params.slug);
 
@@ -35,6 +38,7 @@ async function Post(props: Params) {
         </Avatar>
         <span className="text-2xl ">{post.author.name}</span>
       </div>
+      <CoverImage title={post.title} src={post.coverImage} />
       <div className="max-w-2xl mx-auto">
         <div
           className={markdownStyles["markdown"]}
@@ -45,4 +49,31 @@ async function Post(props: Params) {
   );
 }
 
-export default Post;
+export async function generateMetadata(props: Params): Promise<Metadata> {
+  const params = await props.params;
+  const post = getPostBySlug(params.slug);
+
+  if (!post) {
+    return notFound();
+  }
+
+  const title = `${post.title} | ${post.author}`;
+
+  return {
+    title,
+    openGraph: {
+      title,
+      images: [post.ogImage.url],
+    },
+  };
+}
+
+export async function generateStaticParams() {
+  const posts = getAllPosts();
+
+  return posts.map((post: Post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default PostDetailPage;
