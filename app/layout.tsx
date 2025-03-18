@@ -1,8 +1,8 @@
-import Providers from "@/components/providers/provider";
-import { Toaster } from "@/components/ui/toaster";
+import Providers from "@/components/providers";
 import { siteConfig } from "@/config/site";
 import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ["Blogging Web App"],
+  keywords: [],
   authors: [
     {
       name: "SinghAstra",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: "/api/og",
+        url: "/assets/landing.png",
         width: 1200,
         height: 630,
       },
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: ["/api/og"],
+    images: ["/assets/landing.png"],
     creator: "@singhastra",
   },
   icons: {

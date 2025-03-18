@@ -1,20 +1,20 @@
 import { SiteConfig } from "@/interfaces/site";
 
 export const siteConfig: SiteConfig = {
-  name: "CodeBlogX",
-  description: "A modern platform to share your thoughts, stories, and ideas.",
-  tagline: "Let's Learn Together",
-  headline: "Share Ideas, Inspire Minds",
-  subHeadline: "Empowering everyone to tell their stories.",
-  url: "https://codeblogx.vercel.app",
+  name: "ChatDSAX",
+  description:
+    "Personalized, AI-driven education in Data Structures and Algorithms",
+  tagline: "Master DSA with your AI tutor companion",
+  url: "https://chatdsax.vercel.app",
   features: [
-    "Write and publish articles seamlessly",
-    "Engage with a community of readers and writers",
-    "Explore trending topics and curated content",
+    "AI-powered interactive problem-solving",
+    "Step-by-step guidance on DSA concepts",
+    "Personalized learning experience",
+    "Track progress with saved chat sessions",
+    "Comprehensive coverage of algorithms and data structures",
   ],
   links: {
-    twitter: "https://x.com/XSinghAstra",
-    github: "https://github.com/SinghAstra/CodeBlogX",
-    linkedIn: "https://www.linkedin.com/in/singhastra",
+    twitter: "https://twitter.com/chatdsax",
+    github: "https://github.com/chatdsax/chatdsax",
   },
 };
