@@ -115,13 +115,13 @@ export default function SignIn() {
         </div>
       </div>
 
-      <div className="w-full lg:w-2/5 flex items-center justify-center">
-        <div className=" flex items-center justify-center p-8 relative">
+      <div className="w-full lg:w-2/5 flex items-center justify-center ">
+        <div className=" flex items-center justify-center relative">
           {/* Decorative elements */}
           <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
           <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl" />
 
-          <div className="w-full max-w-md p-8 bg-card/50 backdrop-blur-sm rounded-md border space-y-6">
+          <div className="w-[400px] p-8 bg-card/50 backdrop-blur-sm rounded-md border space-y-6">
             <div className="space-y-2 text-center">
               <RotatingBorderBadge title={`Welcome to ${siteConfig.name}`} />
             </div>
@@ -130,8 +130,8 @@ export default function SignIn() {
               <Button
                 onClick={handleGitHubSignIn}
                 disabled={isGithubLoading}
-                variant="default"
-                className="w-full bg-[#24292F] text-white hover:bg-[#24292F]/90 group"
+                variant="outline"
+                className="w-full text-primary"
               >
                 {isGithubLoading ? (
                   <>
@@ -151,7 +151,7 @@ export default function SignIn() {
                   <Separator />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase ">
-                  <span className="bg-background px-2 text-muted-foreground">
+                  <span className="bg-background rounded-md px-2 text-muted-foreground">
                     Or
                   </span>
                 </div>
