@@ -5,32 +5,32 @@ import { Button } from "@/components/ui/button";
 import RotatingBorderBadge from "@/components/ui/rotating-border-badge";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site";
-import { Code2, FileSearch, Lightbulb, LoaderCircle } from "lucide-react";
+import { Brain, LoaderCircle, Sparkles } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaQuestion } from "react-icons/fa";
 
 const features = [
   {
-    title: "Functionality-based Exploration",
+    title: "AI-Powered DSA Tutoring",
     description:
-      "Explore and analyze code implementations based on their actual functionality.",
-    icon: Code2,
+      "Get personalized, interactive guidance on Data Structures and Algorithms with our advanced AI chat interface.",
+    icon: Brain,
   },
   {
-    title: "Comprehensive File Analysis",
+    title: "Step-by-Step Problem Solving",
     description:
-      "Get concise summaries of individual code files and understand their purpose within the project.",
-    icon: FileSearch,
+      "Receive detailed explanations and guidance for solving complex DSA problems at your own pace.",
+    icon: FaQuestion,
   },
   {
-    title: "Quick Feature Discovery",
+    title: "Interactive Learning Experience",
     description:
-      "Rapidly identify and understand implemented features within repositories. ",
-    icon: Lightbulb,
+      "Engage with a responsive AI tutor that adapts to your learning style and knowledge level.",
+    icon: Sparkles,
   },
 ];
 

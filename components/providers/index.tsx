@@ -1,5 +1,6 @@
 "use client";
 
+import { SessionProvider } from "next-auth/react";
 import React, { Suspense } from "react";
 
 interface Props {
@@ -17,9 +18,7 @@ const LoadingFallback = () => {
 const Providers = ({ children }: Props) => {
   return (
     <Suspense fallback={<LoadingFallback />}>
-      {/* <SessionProvider> */}
-      {children}
-      {/* </SessionProvider> */}
+      <SessionProvider>{children}</SessionProvider>
     </Suspense>
   );
 };
