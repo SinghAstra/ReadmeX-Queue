@@ -32,7 +32,7 @@ const HomePage = () => {
     }
 
     if (status === "authenticated") {
-      router.push("/dashboard");
+      router.push("/chat");
     }
   };
 
@@ -78,7 +78,7 @@ const HomePage = () => {
             <div className="flex items-center justify-center whitespace-nowrap gap-4 z-50">
               <Button asChild>
                 <Link
-                  href={user ? "/dashboard" : "/auth/sign-in"}
+                  href={user ? "/chat" : "/auth/sign-in"}
                   className="flex items-center"
                 >
                   Get started for free
@@ -125,7 +125,7 @@ const HomePage = () => {
             </h1>
             <BackgroundShine>
               <Link
-                href={user ? "/dashboard" : "/auth/sign-in"}
+                href={user ? "/chat" : "/auth/sign-in"}
                 className="flex items-center "
               >
                 Get started for free
