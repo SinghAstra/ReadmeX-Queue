@@ -1,11 +1,19 @@
 "use server";
-import { Chat } from "@prisma/client";
+import { Chat, Message } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth-options";
 import { prisma } from "../prisma";
 
 type GetChatsResponse =
   | { success: true; chats: Chat[] }
+  | { success: false; message: string };
+
+export interface ChatWithMessage extends Chat {
+  messages: Message[];
+}
+
+type getChatResponse =
+  | { success: true; chat: ChatWithMessage }
   | { success: false; message: string };
 
 export async function getChats(): Promise<GetChatsResponse> {
@@ -59,7 +67,7 @@ export async function createChat(firstMessage: string) {
   }
 }
 
-export async function getChatMessages(chatId: string) {
+export async function getChat(chatId: string): Promise<getChatResponse> {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {

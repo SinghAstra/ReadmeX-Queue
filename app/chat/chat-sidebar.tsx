@@ -78,9 +78,6 @@ export default function ChatSidebar() {
   return (
     <Sidebar className="border-r border-border">
       <SidebarHeader className="px-2 py-2">
-        <div className="flex items-center px-2">
-          <h1 className={cn("text-xl ")}>{siteConfig.name}</h1>
-        </div>
         <Button
           onClick={handleNewChat}
           className="mt-2 w-full justify-start"

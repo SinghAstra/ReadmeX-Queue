@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: "Learn DSA concepts with AI assistance",
 };
 
-const HomeLayout = async ({ children }: Props) => {
+const ChatLayout = async ({ children }: Props) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/auth/sign-in");
@@ -31,4 +31,4 @@ const HomeLayout = async ({ children }: Props) => {
   );
 };
 
-export default HomeLayout;
+export default ChatLayout;
