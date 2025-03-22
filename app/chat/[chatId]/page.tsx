@@ -12,6 +12,7 @@ import { Bot } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./chat-message";
+import MessageWrapper from "./messsage-wrapper";
 
 function ChatInterface() {
   const router = useRouter();
@@ -110,9 +111,13 @@ function ChatInterface() {
             </p>
           </div>
         ) : (
-          chat.messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))
+          chat.messages.map((message) =>
+            message.isUser ? (
+              <MessageWrapper key={message.id} message={message} />
+            ) : (
+              <ChatMessage key={message.id} message={message} />
+            )
+          )
         )}
 
         {/* Loading indicator */}
