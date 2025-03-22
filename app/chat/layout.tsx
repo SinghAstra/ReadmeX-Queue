@@ -1,5 +1,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { authOptions } from "@/lib/auth-options";
+import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -8,6 +9,11 @@ import ChatSidebar from "./chat-sidebar";
 interface Props {
   children: React.ReactNode;
 }
+
+export const metadata: Metadata = {
+  title: `Chat `,
+  description: "Learn DSA concepts with AI assistance",
+};
 
 const HomeLayout = async ({ children }: Props) => {
   const session = await getServerSession(authOptions);

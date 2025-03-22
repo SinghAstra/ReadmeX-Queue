@@ -50,8 +50,11 @@ export default function ChatSidebar() {
     const fetchChats = async () => {
       try {
         setIsFetchingChats(true);
-        const chatData = await getChats();
-        setChats(chatData);
+        const data = await getChats();
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+        setChats(data.chats);
       } catch (error) {
         if (error instanceof Error) {
           console.log("error.stack is ", error.stack);

@@ -1,26 +1,48 @@
 "use client";
 
-import { Send } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { siteConfig } from "@/config/site";
+import { createChat } from "@/lib/actions/chat";
 import { cn } from "@/lib/utils";
-import { FormEvent, useState } from "react";
+import { Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ChatInterface() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState<string>();
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!input) return;
+  const handleSubmit = async (e: FormEvent) => {
+    try {
+      e.preventDefault();
+      if (!input?.trim()) return;
 
-    // Send message to the server
-    console.log("Sending message:", input);
+      const data = await createChat(input);
+      if (!data.success) {
+        return;
+      }
 
-    setInput("");
+      router.push(`/chat/${data.chatId}`);
+
+      setInput("");
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log("error.stack is ", error.stack);
+        console.log("error.message is ", error.message);
+      }
+      setMessage("Check Your Network Connection");
+    }
   };
+
+  useEffect(() => {
+    if (!message) return;
+    toast(message);
+    setMessage(null);
+  }, [message]);
 
   return (
     <div className={cn("flex h-screen flex-col transition-all duration-300")}>
@@ -46,7 +68,7 @@ export default function ChatInterface() {
             placeholder="Ask about data structures and algorithms..."
             className="flex-1"
           />
-          <Button type="submit">
+          <Button type="submit" disabled={!input?.trim()}>
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>
           </Button>
