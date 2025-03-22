@@ -1,47 +1,57 @@
 "use client";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
-import ChatInterface from "./chat-interface";
-import ChatSidebar from "./chat-sidebar";
+import { Send } from "lucide-react";
 
-const DashboardPage = () => {
-  const { status } = useSession();
-  const router = useRouter();
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { siteConfig } from "@/config/site";
+import { cn } from "@/lib/utils";
+import { FormEvent, useState } from "react";
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/sign-in");
-    }
-  }, [status, router]);
+export default function ChatInterface() {
+  const [input, setInput] = useState("");
 
-  // TODO: 1. Replace this with Proper Skeleton
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="space-y-4 w-[400px]">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-8 w-3/4" />
-          <Skeleton className="h-8 w-1/2" />
-        </div>
-      </div>
-    );
-  }
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!input) return;
+
+    // Send message to the server
+    console.log("Sending message:", input);
+
+    setInput("");
+  };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen w-full flex">
-        <ChatSidebar />
-        <main className="flex-1 ">
-          <ChatInterface />
-        </main>
+    <div className={cn("flex h-screen flex-col transition-all duration-300")}>
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex h-full flex-col items-center justify-center">
+          <Card className="max-w-md p-6 text-center">
+            <h3 className="mb-2 text-xl font-semibold">
+              Welcome to {siteConfig.name}
+            </h3>
+            <p className="text-muted-foreground">
+              Start a conversation to learn about Data Structures and Algorithms
+              with AI assistance.
+            </p>
+          </Card>
+        </div>
       </div>
-    </SidebarProvider>
-  );
-};
 
-export default DashboardPage;
+      <div className="border-t p-4">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about data structures and algorithms..."
+            className="flex-1"
+          />
+          <Button type="submit">
+            <Send className="h-4 w-4" />
+            <span className="sr-only">Send</span>
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}

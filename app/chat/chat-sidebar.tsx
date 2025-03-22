@@ -1,6 +1,5 @@
 "use client";
 
-import { Chat } from "@prisma/client";
 import { LogOut, MessageSquare, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,17 +29,22 @@ import {
 import { siteConfig } from "@/config/site";
 import { getChats } from "@/lib/actions/chat";
 import { cn } from "@/lib/utils";
+import { Chat } from "@prisma/client";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function ChatSidebar() {
-  const router = useRouter();
-  const pathname = usePathname();
   const [chats, setChats] = useState<Chat[]>([]);
   const [isFetchingChats, setIsFetchingChats] = useState(true);
-  const [message, setMessage] = useState<string | null>();
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleNewChat = () => {
+    router.push("/chat");
+  };
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -67,10 +71,6 @@ export default function ChatSidebar() {
     toast(message);
     setMessage(null);
   }, [message]);
-
-  const handleNewChat = () => {
-    router.push("/chat");
-  };
 
   return (
     <Sidebar className="border-r border-border">
@@ -147,7 +147,7 @@ export default function ChatSidebar() {
                     Are you sure you want to log out of your account?
                   </DialogDescription>
                 </DialogHeader>
-                <DialogFooter className="flex justify-between sm:justify-between">
+                <DialogFooter className="flex justify-between">
                   <Button
                     type="button"
                     variant="secondary"
