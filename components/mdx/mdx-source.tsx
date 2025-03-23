@@ -1,7 +1,6 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
+import { MDXRemote } from "next-mdx-remote";
+import { serialize } from "next-mdx-remote/serialize";
 import Link from "next/link";
 import React from "react";
 import {
@@ -177,7 +176,8 @@ const components = {
   ),
 };
 
-const MDXSource = ({ mdxSource }: { mdxSource: MDXRemoteSerializeResult }) => {
+const MDXSource = async ({ message }: { message: string }) => {
+  const mdxSource = await serialize(message);
   console.log("mdxSource", mdxSource);
 
   return <MDXRemote {...mdxSource} components={components} />;

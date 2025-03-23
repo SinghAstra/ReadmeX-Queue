@@ -4,15 +4,62 @@ import MDXSource from "@/components/mdx/mdx-source";
 import { cn } from "@/lib/utils";
 import { Message } from "@prisma/client";
 import { Check, Copy } from "lucide-react";
-import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { useState } from "react";
 
 interface ChatMessageProps {
   message: Message;
-  serializedContent?: MDXRemoteSerializeResult;
 }
 
-export function ChatMessage({ message, serializedContent }: ChatMessageProps) {
+const markdownContent = `
+# Welcome to My MDX Demo
+
+This is a paragraph with **bold text** and *italic text*.
+
+## Code Example
+\`\`\`javascript
+function greet() {
+  return "Hello, world!";
+}
+\`\`\`
+
+## Lists
+
+### Unordered List
+- Item 1
+- Item 2
+- Item 3
+
+### Ordered List
+1. First item
+2. Second item
+3. Third item
+
+## Table
+| Name | Role | Department |
+|------|------|------------|
+| John | Developer | Engineering |
+| Jane | Designer | Design |
+| Bob | Manager | Administration |
+
+## Blockquote
+> This is a blockquote. It can span multiple lines and is useful for highlighting important information.
+
+## Custom Components
+
+
+<Alert type="info">
+  This is an informational alert.
+</Alert>
+
+
+## Image
+![Example image](https://example.com/image.jpg)
+
+## Link
+[Visit our website](https://example.com)
+`;
+
+export function ChatMessage({ message }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const isUser = false;
 
@@ -31,8 +78,11 @@ export function ChatMessage({ message, serializedContent }: ChatMessageProps) {
         )}
       >
         <div className="prose prose-sm prose-invert">
-          {isUser && <p className="m-0">{message.text}</p>}
-          {serializedContent && <MDXSource mdxSource={serializedContent} />}
+          {isUser ? (
+            <p className="m-0">{message.text}</p>
+          ) : (
+            <MDXSource message={markdownContent} />
+          )}
         </div>
 
         {!isUser && (
