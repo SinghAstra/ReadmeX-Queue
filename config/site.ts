@@ -15,6 +15,7 @@ export const siteConfig: SiteConfig = {
   ],
   links: {
     twitter: "https://twitter.com/chatdsax",
-    github: "https://github.com/chatdsax/chatdsax",
+    github: "https://github.com/SinghAstra",
+    githubRepo: "https://github.com/SinghAstra/chatdsax",
   },
 };

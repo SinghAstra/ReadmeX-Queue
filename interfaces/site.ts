@@ -7,5 +7,6 @@ export type SiteConfig = {
   links: {
     twitter: string;
     github: string;
+    githubRepo: string;
   };
 };
