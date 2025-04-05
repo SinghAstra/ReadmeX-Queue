@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "devicon/devicon.min.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,4 +92,59 @@ body {
 
 .bg-grid-white {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' fill='none' stroke='rgb(255 255 255 / 0.02)'%3e%3cpath d='M0 .5H63.5V64'/%3e%3c/svg%3e");
+}
+
+.keyword {
+  color: #f97583; /* GitHub Light Red */
+}
+
+.function {
+  color: #d2a8ff; /* GitHub Light Purple */
+}
+
+.punctuation {
+  color: #c9d1d9; /* GitHub Light Gray */
+}
+
+.comment {
+  color: #8b949e; /* GitHub Muted Gray */
+}
+
+.string,
+.constant,
+.annotation,
+.boolean,
+.number {
+  color: #79c0ff; /* GitHub Light Blue */
+}
+
+.tag {
+  color: #a5d6ff; /* GitHub Cyan */
+}
+
+.attr-name {
+  color: #d2a8ff; /* GitHub Light Purple */
+}
+
+.attr-value {
+  color: #ffa657; /* GitHub Light Orange */
+}
+
+pre > code {
+  display: grid;
+  max-width: inherit !important;
+  padding: 10px 14px !important;
+}
+
+.rehype-code-title {
+  margin-top: 1rem;
+  margin-bottom: -1rem;
+  border: 1px solid hsl(var(--border));
+  letter-spacing: 0.05em;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 4px;
+  background-color: hsl(var(--muted) / 0.2);
 }

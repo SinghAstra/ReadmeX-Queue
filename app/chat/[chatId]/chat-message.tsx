@@ -1,10 +1,10 @@
 "use client";
 
-import MDXSource from "@/components/mdx/mdx-source";
 import { cn } from "@/lib/utils";
 import { Message } from "@prisma/client";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import AIMessage from "./ai-message";
 
 interface ChatMessageProps {
   message: Message;
@@ -47,9 +47,7 @@ function greet() {
 ## Custom Components
 
 
-<Alert type="info">
-  This is an informational alert.
-</Alert>
+
 
 
 ## Image
@@ -71,17 +69,12 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <div className={cn("flex items-start gap-3", isUser && "justify-end")}>
-      <div
-        className={cn(
-          "group relative rounded-lg px-3 py-2 max-w-[65%]",
-          "bg-muted text-muted-foreground"
-        )}
-      >
+      <div className={cn("group relative rounded-lg px-3 py-2 max-w-[65%]")}>
         <div className="prose prose-sm prose-invert">
           {isUser ? (
             <p className="m-0">{message.text}</p>
           ) : (
-            <MDXSource message={markdownContent} />
+            <AIMessage message={markdownContent} />
           )}
         </div>
 
