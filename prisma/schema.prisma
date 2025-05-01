@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -17,8 +16,8 @@ model User {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   accounts      Account[]
+  repositories  Repository[]
   sessions      Session[]
-  chats         Chat[]
 }
 
 model Account {
@@ -55,30 +54,67 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-model Chat {
-  id        String    @id @default(cuid())
-  userId    String
-  title     String?   // Optional, you could use this to store a chat title
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id])
-  messages  Message[]
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Repository {
+  id          String           @id @default(cuid())
+  name        String
+  owner       String
+  url         String
+  userId      String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  avatarUrl   String
+  githubId    Int
+  status      RepositoryStatus @default(PENDING)
+  overview    String?
+  directories Directory[]
+  files       File[]
+  logs        Log[]
+  contributing String
+  env          String[]
+  readme        String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Message {
-  id        String    @id @default(cuid())
-  chatId    String
-  text      String
-  isUser    Boolean   
-
-  // Relation to Chat
-  chat      Chat      @relation(fields: [chatId], references: [id])
-
-  createdAt DateTime  @default(now())
+model Directory {
+  id           String      @id @default(cuid())
+  path         String
+  repositoryId String
+  parentId     String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  parent       Directory?  @relation("DirectoryTree", fields: [parentId], references: [id])
+  children     Directory[] @relation("DirectoryTree")
+  repository   Repository  @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  files        File[]
 }
 
+model File {
+  id           String     @id @default(cuid())
+  path         String
+  name         String
+  content      String?
+  directoryId  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  repositoryId String
+  summary     String?
+  directory    Directory? @relation(fields: [directoryId], references: [id], onDelete: Cascade)
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}
+
+model Log {
+  id           String     @id @default(cuid())
+  repositoryId String
+  message      String
+  status       RepositoryStatus
+  createdAt    DateTime   @default(now())
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}
+
+enum RepositoryStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
 
