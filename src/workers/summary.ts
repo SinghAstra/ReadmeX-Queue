@@ -2,7 +2,11 @@ import { RepositoryStatus } from "@prisma/client";
 import { Worker } from "bullmq";
 import { QUEUES, SUMMARY_WORKERS } from "../lib/constants.js";
 
-import { generateBatchSummaries } from "../lib/gemini.js";
+import {
+  generateBatchSummaries,
+  generateRepositoryContribution,
+  generateRepositoryReadme,
+} from "../lib/gemini.js";
 import { prisma } from "../lib/prisma.js";
 import {
   getRepositoryCancelledRedisKey,
@@ -53,13 +57,31 @@ async function generateDocumentationFiles(repositoryId: string) {
       }
     );
 
+    const readme = await generateRepositoryReadme(repositoryId);
+
     await logQueue.add(
       QUEUES.LOG,
       {
         repositoryId,
         status: RepositoryStatus.SUCCESS,
-        message:
-          "🎉 Amazing! Summary generated for all files in your repository!",
+        message: "⏳ Generating readme.md file your repository!",
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+      }
+    );
+    const contributing = await generateRepositoryContribution(repositoryId);
+
+    await logQueue.add(
+      QUEUES.LOG,
+      {
+        repositoryId,
+        status: RepositoryStatus.SUCCESS,
+        message: "⏳ Generating contributing.md file your repository!",
       },
       {
         attempts: 3,
@@ -72,8 +94,25 @@ async function generateDocumentationFiles(repositoryId: string) {
 
     await prisma.repository.update({
       where: { id: repositoryId },
-      data: { status: RepositoryStatus.SUCCESS },
+      data: { status: RepositoryStatus.SUCCESS, readme, contributing },
     });
+
+    await logQueue.add(
+      QUEUES.LOG,
+      {
+        repositoryId,
+        status: RepositoryStatus.SUCCESS,
+        message:
+          "🎉 Amazing! Generated Documentation files for your repository!",
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+      }
+    );
 
     await logQueue.add(
       QUEUES.LOG,

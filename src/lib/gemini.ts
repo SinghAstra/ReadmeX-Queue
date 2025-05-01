@@ -409,3 +409,99 @@ export async function generateRepositoryReadme(repositoryId: string) {
     }
   }
 }
+
+export async function generateRepositoryContribution(repositoryId: string) {
+  for (let i = 0; i < 100; i++) {
+    try {
+      const repository = await prisma.repository.findUnique({
+        where: {
+          id: repositoryId,
+        },
+      });
+
+      if (!repository) {
+        throw new Error("Repository Not Found in repositoryContribution");
+      }
+      // Fetch all file paths and summaries
+      const files = await prisma.file.findMany({
+        where: { repositoryId },
+        select: { path: true, summary: true },
+      });
+
+      // Format file summaries for the prompt
+      const fileSummaries = files
+        .map(
+          (file) => `- ${file.path}: ${file.summary || "No summary available"}`
+        )
+        .join("\n");
+
+      const prompt = `
+        You are a coding assistant. Generate a well-structured MDX README for a repository using the template below. Fill in the placeholders with content based on the provided information.
+        
+        **Provided Information:**
+        
+        - **Owner:** ${repository.owner}
+        - **Name:** ${repository.name}
+        - **Env keys:** ${repository.env.join(", ")}
+        - **File Summaries:**
+        ${fileSummaries}
+        
+        This should be the template 📦 Project Setup
+Before contributing, make sure to set up the project locally by following the steps in README.md.
+📌 Getting an Issue Assigned
+Comment on the issue you'd like to work on.
+
+Briefly describe how you plan to solve it.
+
+Wait for confirmation before starting work.
+
+🌱 Working on the Issue
+Always create a new branch for your work. Do not use the main branch directly.
+
+Provide progress updates every 24–48 hours. If we don’t hear back, the issue might be reassigned to keep things moving.
+
+✅ Submitting a Pull Request
+Ensure your code is well-formatted and follows any existing style conventions.
+
+Include a screenshot or screen recording of your changes in the pull request.
+
+Clearly explain what you've done in the PR description.
+
+Happy Contributing! 🎉
+We’re excited to work with you!
+
+        `;
+
+      const tokenCount = await estimateTokenCount(prompt);
+
+      await handleRateLimit(tokenCount);
+
+      const result = await model.generateContent(prompt);
+
+      const repositoryContribution = result.response.text();
+
+      console.log("repositoryContribution is ", repositoryContribution);
+
+      return repositoryContribution;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log("--------------------------------");
+        console.log("error.stack is ", error.stack);
+        console.log("error.message is ", error.message);
+        console.log("--------------------------------");
+      }
+
+      if (
+        error instanceof Error &&
+        error.message.includes("GoogleGenerativeAI Error")
+      ) {
+        console.log(`Trying again for ${i + 1} time --repositoryContribution`);
+        await handleRequestExceeded();
+        sleep(i + 1);
+        continue;
+      }
+
+      throw new Error("Could Not repositoryContribution.");
+    }
+  }
+}
