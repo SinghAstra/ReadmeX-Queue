@@ -117,7 +117,32 @@ export const directoryWorker = new Worker(
 
     try {
       // Fetch only the current directory level (do NOT recurse)
-      const items = await fetchGithubContent(owner, repo, path, repositoryId);
+      const { items, envVariables } = await fetchGithubContent(
+        owner,
+        repo,
+        path,
+        repositoryId
+      );
+
+      if (envVariables.length > 0) {
+        const repo = await prisma.repository.findUnique({
+          where: { id: repositoryId },
+          select: { env: true },
+        });
+
+        if (!repo) {
+          throw new Error("No repo found while updating envVariables");
+        }
+
+        await prisma.repository.update({
+          where: { id: repositoryId },
+          data: {
+            env: {
+              set: [...repo.env, ...envVariables],
+            },
+          },
+        });
+      }
 
       await logQueue.add(
         QUEUES.LOG,
@@ -267,7 +292,7 @@ async function processFilesInBatches(
       }
     );
 
-    const fileBatches = [];
+    const fileBatches: GitHubContent[][] = [];
     for (
       let i = 0;
       i < files.length;

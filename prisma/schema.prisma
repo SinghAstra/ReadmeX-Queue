@@ -70,7 +70,7 @@ model Repository {
   files       File[]
   logs        Log[]
   contributing String
-  env          String[]
+  env          String[]  @default([])
   readme        String
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -3,6 +3,7 @@ import { RepositoryStatus } from "@prisma/client";
 import { GitHubContent } from "../interfaces/github.js";
 import { logQueue } from "../queues/repository.js";
 import { QUEUES } from "./constants.js";
+import { extractEnvVarsWithRegex } from "./utils.js";
 
 const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 
@@ -73,6 +74,7 @@ export async function fetchGithubContent(
   repositoryId: string
 ) {
   const items: GitHubContent[] = [];
+  const envVariables: string[] = [];
 
   try {
     const { data: contents } = await octokit.repos.getContent({
@@ -99,6 +101,11 @@ export async function fetchGithubContent(
             path: item.path,
             content,
           });
+          const envVars = extractEnvVarsWithRegex(content);
+          if (envVars.length > 0) {
+            console.log("envVars is ", envVars);
+            envVariables.push(...envVars);
+          }
         }
 
         await logQueue.add(
@@ -131,7 +138,9 @@ export async function fetchGithubContent(
     }
   }
 
-  return items;
+  console.log("envVariables is ", envVariables);
+
+  return { items, envVariables };
 }
 
 function isProcessableFile(filename: string): boolean {

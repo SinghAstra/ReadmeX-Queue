@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
+import { prisma } from "./prisma.js";
 import {
   getGeminiRequestsThisMinuteRedisKey,
   getGeminiTokensConsumedThisMinuteRedisKey,
@@ -127,7 +128,7 @@ export async function generateBatchSummaries(
 
       const prompt = `
       You are a code assistant.
-      Summarize each of the following files in 3-7 sentences, focusing on its purpose and main functionality. 
+      Summarize each of the following files in 1-2 sentences, focusing on its purpose and main functionality. 
 
       Return your response as a JSON array of objects, ensuring:
       - Return the summaries as a valid JSON array where each object has 'path' and 'summary' properties.
@@ -253,4 +254,158 @@ function isValidBatchSummaryResponse(data: any, filePaths: Set<string>) {
   }
 
   return true;
+}
+
+export async function generateRepositoryReadme(repositoryId: string) {
+  for (let i = 0; i < 100; i++) {
+    try {
+      const repository = await prisma.repository.findUnique({
+        where: {
+          id: repositoryId,
+        },
+      });
+
+      if (!repository) {
+        throw new Error("Repository Not Found in generateRepositoryReadme");
+      }
+      // Fetch all file paths and summaries
+      const files = await prisma.file.findMany({
+        where: { repositoryId },
+        select: { path: true, summary: true },
+      });
+
+      // Format file summaries for the prompt
+      const fileSummaries = files
+        .map(
+          (file) => `- ${file.path}: ${file.summary || "No summary available"}`
+        )
+        .join("\n");
+
+      const prompt = `
+        You are a coding assistant. Generate a well-structured MDX README for a repository using the template below. Fill in the placeholders with content based on the provided information.
+        
+        **Provided Information:**
+        
+        - **Owner:** ${repository.owner}
+        - **Name:** ${repository.name}
+        - **Env keys:** ${repository.env.join(", ")}
+        - **File Summaries:**
+        ${fileSummaries}
+        
+        **Template:**
+        
+        # 📌 [Project Name]
+        
+        [Description]
+        
+        ---
+        
+        ## 🛠️ Tech Stack
+        
+        [Tech Stack]
+        
+        ---
+        
+        ## ✨ Features
+        
+        [Features]
+        
+        ---
+        
+        ## 📂 Folder Structure
+        
+        [Folder Structure Summary]
+        
+        ---
+        
+        ## 🚀 Getting Started
+        
+        1. Clone the repository: \`git clone https://github.com/${
+          repository.owner
+        }/${repository.name}\`
+        2. Install dependencies: \`[install command]\`
+        3. Set up environment variables: Copy \`.env.example\` to \`.env\` and fill in the required values.
+        4. Run the application: \`[run command]\`
+        
+        ---
+        
+        ## 🔐 Environment Variables
+        
+        The following environment variables are required:
+        
+        [Environment Variables]
+        
+        ---
+        
+        ## 🤝 Contributing
+        
+        To contribute:
+        
+        1. Fork the repository.
+        2. Create a new branch: \`git checkout -b feature/your-feature\`
+        3. Make your changes and commit: \`git commit -m "Add your message"\`
+        4. Push to the branch: \`git push origin feature/your-feature\`
+        5. Open a pull request.
+        
+        For more details, see [Contributing Guidelines](contributing.md).
+        
+        ---
+        
+        ## 📬 Contact
+        
+        - GitHub: [${repository.owner}](https://github.com/${repository.owner})
+        
+        **Instructions:**
+        
+        - Replace **[Project Name]** with \`${repository.name}\`.
+        - For **[Description]**, generate a concise description (2-3 sentences) of the project’s purpose based on the file summaries. If insufficient data, use a generic description like "A project to streamline [inferred purpose]".
+        - For **[Tech Stack]**, infer technologies from file summaries or paths (e.g., "package.json" suggests Node.js, "requirements.txt" suggests Python). List them in bullet points (e.g., "- React"). If unclear, write "Inferred technologies based on files; adjust as needed."
+        - For **[Features]**, extract key functionalities from file summaries (e.g., "User authentication" if auth-related files are mentioned). Use bullet points with "✅" (e.g., "- ✅ User authentication"). List 3-5 features, or "To be determined" if insufficient data.
+        - For **[Folder Structure Summary]**, summarize main folders and their purposes from file paths (e.g., "src/components: UI elements"). If possible, infer a tree-like structure; otherwise, list key folders in bullet points.
+        - For the **Getting Started** section:
+          - Infer the language/framework from file summaries/paths.
+          - Replace **[install command]** with an appropriate command (e.g., \`npm install\` for Node.js, \`pip install -r requirements.txt\` for Python).
+          - Replace **[run command]** with an appropriate command (e.g., \`npm run dev\` for Node.js, \`python app.py\` for Python).
+          - If unclear, use generic commands like "Install dependencies using the appropriate package manager" and "Run the application per project docs."
+        - For **[Environment Variables]**, list each env key in a bullet point (e.g., "- \`KEY\`"). If empty, write "No environment variables specified."
+        - Use MDX formatting: # for headings, - for bullet points, 1. for numbered lists, \` for inline code.
+        - Add emojis before headings as shown in the template.
+        - Ensure the output is valid MDX without triple backtick wrappers.
+        - Generate the MDX content directly as plain text.
+        `;
+
+      const tokenCount = await estimateTokenCount(prompt);
+
+      await handleRateLimit(tokenCount);
+
+      const result = await model.generateContent(prompt);
+
+      const readmeContent = result.response.text();
+
+      console.log("readmeContent is ", readmeContent);
+
+      return readmeContent;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log("--------------------------------");
+        console.log("error.stack is ", error.stack);
+        console.log("error.message is ", error.message);
+        console.log("--------------------------------");
+      }
+
+      if (
+        error instanceof Error &&
+        error.message.includes("GoogleGenerativeAI Error")
+      ) {
+        console.log(
+          `Trying again for ${i + 1} time --generateRepositoryReadme`
+        );
+        await handleRequestExceeded();
+        sleep(i + 1);
+        continue;
+      }
+
+      throw new Error("Could Not generateRepositoryReadme.");
+    }
+  }
 }

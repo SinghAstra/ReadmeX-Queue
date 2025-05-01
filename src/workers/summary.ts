@@ -12,7 +12,7 @@ import {
 import redisClient from "../lib/redis.js";
 import { logQueue } from "../queues/repository.js";
 
-async function generateRepoOverview(repositoryId: string) {
+async function generateDocumentationFiles(repositoryId: string) {
   const summaryWorkerTotalJobsKey =
     getSummaryWorkerTotalJobsRedisKey(repositoryId);
   const summaryWorkerCompletedJobsKey =
@@ -172,7 +172,7 @@ export const summaryWorker = new Worker(
         }
       );
     } finally {
-      await generateRepoOverview(repositoryId);
+      await generateDocumentationFiles(repositoryId);
     }
   },
   {
