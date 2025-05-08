@@ -2,7 +2,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 import dotenv from "dotenv";
 import { prisma } from "./prisma.js";
-import { generateBatchSummarySystemPrompt } from "./prompt.js";
+import {
+  generateBatchSummarySystemPrompt,
+  generateRepositoryReadmePrompt,
+} from "./prompt.js";
 import {
   getGeminiRequestsThisMinuteRedisKey,
   getGeminiTokensConsumedThisMinuteRedisKey,
@@ -281,107 +284,10 @@ export async function generateRepositoryReadme(repositoryId: string) {
         .join("\n");
 
       const prompt = `
-        You are a coding assistant. Generate a well-structured MDX README for a repository using the template below. Fill in the placeholders with content based on the provided information.
-        
-        **Provided Information:**
-        
-        - **Owner:** ${repository.owner}
+        Generate a README.md file based on the following file descriptions:
+
         - **Name:** ${repository.name}
-        - **Env keys:** ${repository.env.join(", ")}
-        - **File Summaries:**
-        ${fileSummaries}
-        
-        **Template:**
-        
-        # 📌 [Project Name]
-        
-        [Description]
-        
-        ---
-        
-        ## 🛠️ Tech Stack
-        
-        [Tech Stack]
-        
-        ---
-        
-        ## ✨ Features
-        
-        [Features]
-        
-        ---
-        
-        ## 📂 Folder Structure
-        
-        [Folder Structure Summary]
-        
-        ---
-        
-        ## 🚀 Getting Started
-        
-        1. Clone the repository: \`git clone https://github.com/${
-          repository.owner
-        }/${repository.name}\`
-        2. Install dependencies: \`[install command]\`
-        3. Set up environment variables: Copy \`.env.example\` to \`.env\` and fill in the required values.
-        4. Run the application: \`[run command]\`
-        
-        ---
-        
-        ## 🔐 Environment Variables
-        
-        The following environment variables are required:
-        
-        [Environment Variables]
-        
-        ---
-        
-        ## 🤝 Contributing
-        
-        To contribute:
-        
-        1. Fork the repository.
-        2. Create a new branch: \`git checkout -b feature/your-feature\`
-        3. Make your changes and commit: \`git commit -m "Add your message"\`
-        4. Push to the branch: \`git push origin feature/your-feature\`
-        5. Open a pull request.
-        
-        For more details, see [Contributing Guidelines](contributing.md).
-        
-        ---
-        
-        ## 📬 Contact
-        
-        - GitHub: [${repository.owner}](https://github.com/${repository.owner})
-        
-        **Instructions:**
-        
-        - Replace **[Project Name]** with \`${repository.name}\`.
-        - For **[Description]**, generate a concise description (2-3 sentences) of the project’s purpose based on the file summaries. If insufficient data, use a generic description like "A project to streamline [inferred purpose]".
-        - For **[Tech Stack]**, infer technologies from file summaries or paths (e.g., "package.json" suggests Node.js, "requirements.txt" suggests Python). List them in bullet points (e.g., "- React"). If unclear, write "Inferred technologies based on files; adjust as needed."
-        - For **[Features]**, extract key functionalities from file summaries (e.g., "User authentication" if auth-related files are mentioned). Use bullet points with "✅" (e.g., "- ✅ User authentication"). List 3-5 features, or "To be determined" if insufficient data.
-        - For **[Folder Structure Summary]**, summarize main folders and their purposes from file paths (e.g., "src/components: UI elements"). If possible, infer a tree-like structure; otherwise, list key folders in bullet points.
-        - For the **Getting Started** section:
-          - Infer the language/framework from file summaries/paths.
-          - Replace **[install command]** with an appropriate command (e.g., \`npm install\` for Node.js, \`pip install -r requirements.txt\` for Python).
-          - Replace **[run command]** with an appropriate command (e.g., \`npm run dev\` for Node.js, \`python app.py\` for Python).
-          - If unclear, use generic commands like "Install dependencies using the appropriate package manager" and "Run the application per project docs."
-        - For **[Environment Variables]**, list each env key in a bullet point (e.g., "- \`KEY\`"). If empty, write "No environment variables specified."
-
-          ## 🚀 Guidelines:
-      - **MDX format:** Use proper heading levels (#, ##, ###).
-      - **Inline code:** Use backticks for code snippets (e.g., \`exampleFunction()\`).
-      - **Lists:** Use \`-\` for bullet points, \`1.\` for numbered lists.
-      - **Emojis:** Add relevant emojis to make the overview engaging add emoji before the heading text.
-      - **No code block wrappers:** Do **not** use triple backticks for MDX content.
-      - **Be concise yet insightful.** Don’t over-explain — aim for clarity.
-
-      ## 🎯 Important:
-      - Ensure the output is **valid MDX**.
-      - The overview should **reference key files** from the provided summaries when relevant.
-      - **Directly output MDX content** without wrapping it in code blocks.
-
-      Please generate the MDX project overview as plain text.
+        - **File Summaries:**${fileSummaries}
         `;
 
       const tokenCount = await estimateTokenCount(prompt);
@@ -391,6 +297,10 @@ export async function generateRepositoryReadme(repositoryId: string) {
       const response = await ai.models.generateContent({
         model,
         contents: prompt,
+        config: {
+          systemInstruction: generateRepositoryReadmePrompt,
+          temperature: 0.2,
+        },
       });
 
       if (!response || !response.text) {
@@ -441,141 +351,6 @@ export async function generateRepositoryReadme(repositoryId: string) {
       }
 
       throw new Error("Could Not generateRepositoryReadme.");
-    }
-  }
-}
-
-export async function generateRepositoryContribution(repositoryId: string) {
-  for (let i = 0; i < 100; i++) {
-    try {
-      const repository = await prisma.repository.findUnique({
-        where: {
-          id: repositoryId,
-        },
-      });
-
-      if (!repository) {
-        throw new Error("Repository Not Found in repositoryContribution");
-      }
-      // Fetch all file paths and summaries
-      const files = await prisma.file.findMany({
-        where: { repositoryId },
-        select: { path: true, summary: true },
-      });
-
-      // Format file summaries for the prompt
-      const fileSummaries = files
-        .map(
-          (file) => `- ${file.path}: ${file.summary || "No summary available"}`
-        )
-        .join("\n");
-
-      const prompt = `
-        You are a coding assistant. Generate a well-structured MDX README for a repository using the template below. Fill in the placeholders with content based on the provided information.
-        
-        **Provided Information:**
-        
-        - **Owner:** ${repository.owner}
-        - **Name:** ${repository.name}
-        - **Env keys:** ${repository.env.join(", ")}
-        - **File Summaries:**
-        ${fileSummaries}
-        
-        This is a sample template to get started 
-        📦 Project Setup
-        Before contributing, make sure to set up the project locally by following the steps in README.md.
-        📌 Getting an Issue Assigned
-        Comment on the issue you'd like to work on.
-
-        Briefly describe how you plan to solve it.
-
-        Wait for confirmation before starting work.
-
-        🌱 Working on the Issue
-        Always create a new branch for your work. Do not use the main branch directly.
-
-        Provide progress updates every 24–48 hours. If we don’t hear back, the issue might be reassigned to keep things moving.
-
-        ✅ Submitting a Pull Request
-        Ensure your code is well-formatted and follows any existing style conventions.
-
-        Include a screenshot or screen recording of your changes in the pull request.
-
-        Clearly explain what you've done in the PR description.
-
-        Happy Contributing! 🎉
-        We’re excited to work with you!
-          ## 🚀 Guidelines:
-        - **MDX format:** Use proper heading levels (#, ##, ###).
-        - **Inline code:** Use backticks for code snippets (e.g., \`exampleFunction()\`).
-        - **Lists:** Use \`-\` for bullet points, \`1.\` for numbered lists.
-        - **Emojis:** Add relevant emojis to make the overview engaging add emoji before the heading text.
-        - **No code block wrappers:** Do **not** use triple backticks for MDX content.
-        - **Be concise yet insightful.** Don’t over-explain — aim for clarity.
-
-        ## 🎯 Important:
-        - Ensure the output is **valid MDX**.
-        - The overview should **reference key files** from the provided summaries when relevant.
-        - **Directly output MDX content** without wrapping it in code blocks.
-
-        Please generate the MDX project overview as plain text.
-
-        `;
-
-      const tokenCount = await estimateTokenCount(prompt);
-
-      await handleRateLimit(tokenCount);
-
-      const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-      });
-
-      if (!response || !response.text) {
-        throw new Error("Invalid contribution format");
-      }
-
-      console.log("contribute.md is ", response.text);
-      return response.text;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log("--------------------------------");
-        console.log("error.stack is ", error.stack);
-        console.log("error.message is ", error.message);
-        console.log("--------------------------------");
-      }
-
-      if (
-        error instanceof Error &&
-        error.message.includes("Invalid contribution format")
-      ) {
-        console.log("--------------------------------");
-        console.log(`Syntax Error occurred. Trying again for ${i} time`);
-        console.log("--------------------------------");
-        continue;
-      }
-
-      if (
-        error instanceof Error &&
-        error.message.includes("GoogleGenerativeAI Error")
-      ) {
-        console.log(`Trying again for ${i + 1} time --repositoryContribution`);
-        await handleRequestExceeded();
-        sleep(i + 1);
-        continue;
-      }
-
-      if (
-        error instanceof Error &&
-        error.message.includes("429 Too Many Requests")
-      ) {
-        console.log(`Trying again for ${i + 1} time --generateBatchSummaries`);
-        await handleRequestExceeded();
-        sleep(i + 1);
-        continue;
-      }
-
-      throw new Error("Could Not repositoryContribution.");
     }
   }
 }
