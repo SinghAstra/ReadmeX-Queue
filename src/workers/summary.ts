@@ -45,7 +45,7 @@ async function generateDocumentationFiles(repositoryId: string) {
       QUEUES.LOG,
       {
         repositoryId,
-        status: RepositoryStatus.SUCCESS,
+        status: RepositoryStatus.PROCESSING,
         message: "✅ All file summaries successfully generated!",
       },
       {
@@ -63,7 +63,7 @@ async function generateDocumentationFiles(repositoryId: string) {
       QUEUES.LOG,
       {
         repositoryId,
-        status: RepositoryStatus.SUCCESS,
+        status: RepositoryStatus.PROCESSING,
         message: "⏳ Generating readme.md file your repository!",
       },
       {
@@ -80,7 +80,7 @@ async function generateDocumentationFiles(repositoryId: string) {
       QUEUES.LOG,
       {
         repositoryId,
-        status: RepositoryStatus.SUCCESS,
+        status: RepositoryStatus.PROCESSING,
         message: "⏳ Generating contributing.md file your repository!",
       },
       {
