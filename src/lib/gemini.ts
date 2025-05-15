@@ -171,8 +171,6 @@ export async function generateBatchSummaries(
 
       const result = JSON.parse(response.text);
 
-      console.log("result in generateBatchSummaries is ", result);
-
       if (!isValidBatchSummaryResponse(result, filePaths)) {
         throw new Error("Invalid batch summary response format");
       }
@@ -245,10 +243,19 @@ export async function generateBatchSummaries(
 
 function isValidBatchSummaryResponse(data: any, filePaths: Set<string>) {
   if (!Array.isArray(data)) {
+    console.log("Batch Summary Response is not array.");
     return false;
   }
   // Validate each item in the array
   for (const item of data) {
+    if (!filePaths.has(item.path)) {
+      console.log("item.path not found in filePaths is ", item.path);
+    }
+
+    if (Object.keys(item).length !== 2) {
+      console.log("item.keys is not 2 item is ", item);
+    }
+
     // Ensure item is an object of type Summary and valid path and not null
     if (!filePaths.has(item.path) || Object.keys(item).length !== 2) {
       return false;

@@ -188,6 +188,7 @@ function isProcessableFile(filename: string): boolean {
     ".bash",
     ".zsh",
     ".fish",
+    ".prisma",
   ];
 
   const extension = filename.toLowerCase().split(".").pop();

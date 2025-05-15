@@ -134,12 +134,12 @@ export const directoryWorker = new Worker(
           throw new Error("No repo found while updating envVariables");
         }
 
+        const uniqueEnv = Array.from(new Set([...repo.env, ...envVariables]));
+
         await prisma.repository.update({
           where: { id: repositoryId },
           data: {
-            env: {
-              set: [...repo.env, ...envVariables],
-            },
+            env: uniqueEnv,
           },
         });
       }
