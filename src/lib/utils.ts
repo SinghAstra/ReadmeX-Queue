@@ -8,5 +8,10 @@ export function extractEnvVarsWithRegex(code: string): string[] {
     envVars.add(match[1]);
   }
 
+  const envFnRegex = /env\(\s*['"]([A-Z0-9_]+)['"]\s*\)/gi;
+  while ((match = envFnRegex.exec(code)) !== null) {
+    envVars.add(match[1]);
+  }
+
   return Array.from(envVars);
 }

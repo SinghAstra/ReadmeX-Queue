@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
+import { extractEnvVarsWithRegex } from "./lib/utils.js";
 import cleanRoutes from "./routes/clean.js";
 import queueRoutes from "./routes/queue.js";
 
