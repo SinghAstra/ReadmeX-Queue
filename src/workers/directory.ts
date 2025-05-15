@@ -161,6 +161,7 @@ export const directoryWorker = new Worker(
       );
 
       const directories = items.filter((item) => item.type === "dir");
+
       const files = items.filter((item) => item.type === "file");
 
       // Update the directory Worker Total Jobs
@@ -195,7 +196,7 @@ export const directoryWorker = new Worker(
       // Queue subdirectories for processing
       await Promise.all(
         directories.map(async (dir) => {
-          await directoryQueue.add("process-directory", {
+          await directoryQueue.add(QUEUES.DIRECTORY, {
             owner,
             repo,
             repositoryId,

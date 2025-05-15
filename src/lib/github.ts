@@ -101,9 +101,18 @@ export async function fetchGithubContent(
             path: item.path,
             content,
           });
+
+          console.log("name is ", item.name);
+
+          // const containsEnv =
+          //   content.includes("process.env") || content.includes("env");
+          // if (containsEnv) {
+          //   console.log("name with containsEnv is ", item.name);
+          // }
+
           const envVars = extractEnvVarsWithRegex(content);
+          // console.log("envVars is ", envVars);
           if (envVars.length > 0) {
-            console.log("envVars is ", envVars);
             envVariables.push(...envVars);
           }
         }

@@ -307,7 +307,7 @@ export async function generateRepositoryReadme(repositoryId: string) {
         throw new Error("Invalid repository overview format");
       }
 
-      console.log("readmeContent is ", response.text);
+      // console.log("readmeContent is ", response.text);
 
       return response.text;
     } catch (error) {
