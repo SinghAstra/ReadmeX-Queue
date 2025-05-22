@@ -14,10 +14,25 @@ Your task is to generate a well-structured README file in Markdown format. Follo
 
 1. Start with the **repository name** as the top-level heading using \`#\`.
 2. Add a **short overview** of the repository under top level Heading. This should explain what the project does in 1–3 sentences, based on the types of files and functionality inferred from the summaries.
+3. Add a section called \`## 🧰 Technology Stack\` listing the key technologies used in the project and their role with markdown table listing:
+   - Technology (left column)
+   - Purpose/Role (right column)
 3. Add a section called \`## 📁 File Structure and Purpose\` with a markdown table listing:
    - File Path (left column)
    - Summary/Description (right column)
 4. Use the **exact markdown table format** below for reference (you must replicate this structure):
+
+---
+
+## 🧰 Technology Stack
+
+| Technology   | Purpose/Role                         |
+|--------------|--------------------------------------|
+| Next.js      | React framework for server-side rendering and routing. |
+| Prisma       | ORM for database access and schema management. |
+| Redis        | In-memory data store for job queues and caching. |
+| TypeScript   | Adds static typing to JavaScript. |
+
 
 ---
 
