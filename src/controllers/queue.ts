@@ -2,14 +2,13 @@ import { RepositoryStatus } from "@prisma/client";
 import { Request, Response } from "express";
 import { QUEUES } from "../lib/constants.js";
 import { parseGithubUrl } from "../lib/github.js";
-import { logQueue, repositoryQueue } from "../queues/repository.js";
+import { logQueue, repositoryQueue } from "../queues/index.js";
 
 export const addJobToRepositoryQueue = async (req: Request, res: Response) => {
   try {
     const { repositoryId, userId, githubUrl } = req.body.auth;
     console.log("req.body.auth --addJobToRepositoryQueue is ", req.body.auth);
-      const { repo } = parseGithubUrl(githubUrl);
-    console.log("req.body.auth --addJobToRepositoryQueue is ", req.body.auth);
+    const { repo } = parseGithubUrl(githubUrl);
     await logQueue.add(
       QUEUES.LOG,
       {

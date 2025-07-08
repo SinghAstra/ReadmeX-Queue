@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import { RepositoryStatus } from "@prisma/client";
 import { GitHubContent } from "../interfaces/github.js";
-import { logQueue } from "../queues/repository.js";
+import { logQueue } from "../queues/index.js";
 import { QUEUES } from "./constants.js";
 import { extractEnvVarsWithRegex } from "./utils.js";
 

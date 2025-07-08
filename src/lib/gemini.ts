@@ -6,16 +6,12 @@ import {
   generateBatchSummarySystemPrompt,
   generateRepositoryReadmePrompt,
 } from "./prompt.js";
-import {
-  getGeminiRequestsThisMinuteRedisKey,
-  getGeminiTokensConsumedThisMinuteRedisKey,
-} from "./redis-keys.js";
-import redisClient from "./redis.js";
+import { checkAndIncrementRateLimit } from "./redis/atomic-operations.js";
+import { getGeminiRequestsThisMinuteRedisKey } from "./redis/redis-keys.js";
 
 dotenv.config();
 
 const REQUEST_LIMIT = 12;
-const TOKEN_LIMIT = 800000;
 
 type Summary = {
   path: string;
@@ -37,87 +33,48 @@ if (!GEMINI_API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-export async function trackRequest(tokenCount: number) {
-  const geminiRequestsCountKey = getGeminiRequestsThisMinuteRedisKey();
-  const geminiRequestsTokenConsumedKey =
-    getGeminiTokensConsumedThisMinuteRedisKey();
-
-  const result = await redisClient
-    .multi()
-    .incr(geminiRequestsCountKey)
-    .incrby(geminiRequestsTokenConsumedKey, tokenCount)
-    .expire(geminiRequestsCountKey, 60)
-    .expire(geminiRequestsTokenConsumedKey, 60)
-    .exec();
-
-  if (!result) {
-    throw new Error(
-      "Redis connection failed during updating tokens consumed and request count"
-    );
-  }
-
-  const [requests, tokens] = result.map(([error, response]) => {
-    if (error) throw error;
-    return response;
-  });
-
-  return { requests, tokens };
-}
-
-export async function checkLimits() {
-  const geminiRequestsCountKey = getGeminiRequestsThisMinuteRedisKey();
-  const geminiRequestsTokenConsumedKey =
-    getGeminiTokensConsumedThisMinuteRedisKey();
-
-  const [requests, tokens] = await redisClient.mget(
-    geminiRequestsCountKey,
-    geminiRequestsTokenConsumedKey
-  );
-
-  return {
-    requests: parseInt(requests ?? "0"),
-    tokens: parseInt(tokens ?? "0"),
-    requestsExceeded: parseInt(requests ?? "0") >= REQUEST_LIMIT,
-    tokensExceeded: parseInt(tokens ?? "0") >= TOKEN_LIMIT,
-  };
-}
-
 async function sleep(times: number) {
   console.log(`Sleeping for ${2 * times} seconds...`);
   await new Promise((resolve) => setTimeout(resolve, 2000 * times));
 }
 
-export async function estimateTokenCount(
-  prompt: string,
-  maxOutputTokens = 1000
-) {
-  return Math.ceil(prompt.length / 4) + maxOutputTokens;
-}
+export async function handleAtomicRateLimit() {
+  const geminiRequestsCountKey = getGeminiRequestsThisMinuteRedisKey();
 
-export async function handleRateLimit(tokenCount: number) {
-  const limitsResponse = await checkLimits();
+  const result = await checkAndIncrementRateLimit(
+    geminiRequestsCountKey,
+    REQUEST_LIMIT
+  );
 
   console.log("--------------------------------------");
-  console.log("limitsResponse:", limitsResponse);
+  console.log("Rate limit check result:", {
+    allowed: result.allowed,
+    currentRequests: result.currentRequests,
+  });
   console.log("--------------------------------------");
 
-  const { requestsExceeded, tokensExceeded } = limitsResponse;
-
-  if (requestsExceeded || tokensExceeded) {
+  if (!result.allowed) {
+    console.log("Rate limit exceeded, waiting...");
     await sleep(1);
+    return false;
   }
 
-  await trackRequest(tokenCount);
+  return true;
 }
 
-async function handleRequestExceeded() {
-  console.log("-------------------------------");
-  console.log("In handleRequest exceeded");
-  const geminiRequestsCountKey = getGeminiRequestsThisMinuteRedisKey();
-  await redisClient.set(geminiRequestsCountKey, 16);
-  const limitsResponse = await checkLimits();
-  console.log("limitsResponse:", limitsResponse);
-  console.log("-------------------------------");
+/**
+ * Wait for rate limits to reset and retry the atomic check
+ */
+async function waitForRateLimitReset(maxRetries = 30) {
+  for (let i = 0; i < maxRetries; i++) {
+    const allowed = await handleAtomicRateLimit();
+    if (allowed) {
+      return; // Successfully acquired rate limit slot
+    }
+
+    // Wait before retrying
+    await sleep(1);
+  }
 }
 
 export async function generateBatchSummaries(
@@ -139,9 +96,8 @@ export async function generateBatchSummaries(
         .join("\n")}
       `;
 
-      const tokenCount = await estimateTokenCount(prompt);
-
-      await handleRateLimit(tokenCount);
+      // Atomic rate limiting - will wait until allowed
+      await waitForRateLimitReset();
 
       const response = await ai.models.generateContent({
         model,
@@ -204,8 +160,11 @@ export async function generateBatchSummaries(
         error instanceof Error &&
         error.message.includes("GoogleGenerativeAI Error")
       ) {
-        console.log(`Trying again for ${i + 1} time --generateBatchSummaries`);
-        await handleRequestExceeded();
+        console.log(
+          `GoogleGenerativeAI Error: Trying again for ${
+            i + 1
+          } time --generateBatchSummaries`
+        );
         sleep(i + 1);
         continue;
       }
@@ -214,8 +173,11 @@ export async function generateBatchSummaries(
         error instanceof Error &&
         error.message.includes("429 Too Many Requests")
       ) {
-        console.log(`Trying again for ${i + 1} time --generateBatchSummaries`);
-        await handleRequestExceeded();
+        console.log(
+          `GoogleGenerativeAI Error : Trying again for ${
+            i + 1
+          } time --generateBatchSummaries`
+        );
         sleep(i + 1);
         continue;
       }
@@ -226,7 +188,9 @@ export async function generateBatchSummaries(
           error.stack?.includes("SyntaxError"))
       ) {
         console.log("--------------------------------");
-        console.log(`Syntax Error occurred. Trying again for ${i} time`);
+        console.log(
+          `GoogleGenerativeAI Error : Syntax Error occurred. Trying again for ${i} time`
+        );
         console.log("--------------------------------");
         continue;
       }
@@ -297,9 +261,8 @@ export async function generateRepositoryReadme(repositoryId: string) {
         - **File Summaries:**${fileSummaries}
         `;
 
-      const tokenCount = await estimateTokenCount(prompt);
-
-      await handleRateLimit(tokenCount);
+      // Atomic rate limiting - will wait until allowed
+      await waitForRateLimitReset();
 
       const response = await ai.models.generateContent({
         model,
@@ -330,7 +293,9 @@ export async function generateRepositoryReadme(repositoryId: string) {
         error.message.includes("Invalid repository overview format")
       ) {
         console.log("--------------------------------");
-        console.log(`Syntax Error occurred. Trying again for ${i} time`);
+        console.log(
+          `GoogleGenerativeAI Error : Syntax Error occurred. Trying again for ${i} time`
+        );
         console.log("--------------------------------");
         continue;
       }
@@ -340,9 +305,10 @@ export async function generateRepositoryReadme(repositoryId: string) {
         error.message.includes("GoogleGenerativeAI Error")
       ) {
         console.log(
-          `Trying again for ${i + 1} time --generateRepositoryReadme`
+          `GoogleGenerativeAI Error : Trying again for ${
+            i + 1
+          } time --generateRepositoryReadme`
         );
-        await handleRequestExceeded();
         sleep(i + 1);
         continue;
       }
@@ -351,8 +317,11 @@ export async function generateRepositoryReadme(repositoryId: string) {
         error instanceof Error &&
         error.message.includes("429 Too Many Requests")
       ) {
-        console.log(`Trying again for ${i + 1} time --generateBatchSummaries`);
-        await handleRequestExceeded();
+        console.log(
+          `GoogleGenerativeAI Error : Trying again for ${
+            i + 1
+          } time --generateBatchSummaries`
+        );
         sleep(i + 1);
         continue;
       }

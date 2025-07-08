@@ -7,13 +7,14 @@ import {
   generateRepositoryReadme,
 } from "../lib/gemini.js";
 import { prisma } from "../lib/prisma.js";
+import { checkCompletion } from "../lib/redis/atomic-operations.js";
 import {
   getRepositoryCancelledRedisKey,
   getSummaryWorkerCompletedJobsRedisKey,
   getSummaryWorkerTotalJobsRedisKey,
-} from "../lib/redis-keys.js";
-import redisClient from "../lib/redis.js";
-import { logQueue } from "../queues/repository.js";
+} from "../lib/redis/redis-keys.js";
+import redisClient from "../lib/redis/redis.js";
+import { logQueue } from "../queues/index.js";
 
 async function generateDocumentationFiles(repositoryId: string) {
   const summaryWorkerTotalJobsKey =
@@ -21,19 +22,13 @@ async function generateDocumentationFiles(repositoryId: string) {
   const summaryWorkerCompletedJobsKey =
     getSummaryWorkerCompletedJobsRedisKey(repositoryId);
 
-  const summaryWorkerTotalJobs = await redisClient.get(
+  // Use atomic check - only one worker will get true when all summaries are complete
+  const allSummariesComplete = await checkCompletion(
+    summaryWorkerCompletedJobsKey,
     summaryWorkerTotalJobsKey
   );
-  const summaryWorkerCompletedJobs = await redisClient.get(
-    summaryWorkerCompletedJobsKey
-  );
 
-  console.log("-------------------------------------------------------");
-  console.log("summaryWorkerTotalJobs is ", summaryWorkerTotalJobs);
-  console.log("summaryWorkerCompletedJobs is ", summaryWorkerCompletedJobs);
-  console.log("-------------------------------------------------------");
-
-  if (summaryWorkerCompletedJobs === summaryWorkerTotalJobs) {
+  if (allSummariesComplete) {
     console.log("-------------------------------------------------------");
     console.log(
       "Inside the if of summaryWorkerCompletedJobs === summaryWorkerTotalJobs"

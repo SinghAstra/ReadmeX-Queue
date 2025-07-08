@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import { extractEnvVarsWithRegex } from "./lib/utils.js";
 import cleanRoutes from "./routes/clean.js";
 import queueRoutes from "./routes/queue.js";
-import redisClient from "./lib/redis.js";
+import redisClient from "./lib/redis/redis.js";
 
 const app = express();
 const PORT = 5000;

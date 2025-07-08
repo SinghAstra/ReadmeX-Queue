@@ -9,18 +9,15 @@ import {
 } from "../lib/constants.js";
 import { fetchGithubContent } from "../lib/github.js";
 import { prisma } from "../lib/prisma.js";
+import { checkCompletion } from "../lib/redis/atomic-operations.js";
 import {
   getDirectoryWorkerCompletedJobsRedisKey,
   getDirectoryWorkerTotalJobsRedisKey,
   getRepositoryCancelledRedisKey,
   getSummaryWorkerTotalJobsRedisKey,
-} from "../lib/redis-keys.js";
-import redisClient from "../lib/redis.js";
-import {
-  directoryQueue,
-  logQueue,
-  summaryQueue,
-} from "../queues/repository.js";
+} from "../lib/redis/redis-keys.js";
+import redisClient from "../lib/redis/redis.js";
+import { directoryQueue, logQueue, summaryQueue } from "../queues/index.js";
 
 let dirPath: string;
 
@@ -32,20 +29,12 @@ async function startSummaryWorker(repositoryId: string) {
   const summaryWorkerTotalJobsKey =
     getSummaryWorkerTotalJobsRedisKey(repositoryId);
 
-  const directoryWorkerCompletedJobs = await redisClient.get(
-    directoryWorkerCompletedJobsKey
-  );
-  const directoryWorkerTotalJobs = await redisClient.get(
+  const allDirectoriesComplete = await checkCompletion(
+    directoryWorkerCompletedJobsKey,
     directoryWorkerTotalJobsKey
   );
 
-  console.log("-------------------------------------------------------");
-  console.log("dirPath is ", dirPath);
-  console.log("directoryWorkerCompletedJobs is ", directoryWorkerCompletedJobs);
-  console.log("directoryWorkerTotalJobs is ", directoryWorkerTotalJobs);
-  console.log("-------------------------------------------------------");
-
-  if (directoryWorkerCompletedJobs === directoryWorkerTotalJobs) {
+  if (allDirectoriesComplete) {
     console.log("-------------------------------------------------------");
     console.log(
       "Inside the if of directoryWorkerCompletedJobs === directoryWorkerTotalJobs"
