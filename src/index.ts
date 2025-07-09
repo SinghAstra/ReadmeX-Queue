@@ -1,9 +1,9 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
+import redisClient from "./lib/redis/redis.js";
 import { extractEnvVarsWithRegex } from "./lib/utils.js";
 import cleanRoutes from "./routes/clean.js";
 import queueRoutes from "./routes/queue.js";
-import redisClient from "./lib/redis/redis.js";
 
 const app = express();
 const PORT = 5000;
@@ -14,7 +14,6 @@ app.use("/api/queue", queueRoutes);
 app.use("/api/clean", cleanRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
-  console.log("Request made to / endpoint");
   try {
     const pong = await redisClient.ping();
     res.status(200).json({

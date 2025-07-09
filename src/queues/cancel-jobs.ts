@@ -1,6 +1,6 @@
+import { getRepositoryCancelledRedisKey } from "../lib/redis/redis-keys.js";
+import redisClient from "../lib/redis/redis.js";
 import { directoryQueue, logQueue, summaryQueue } from "./index.js";
-import { getRepositoryCancelledRedisKey } from "./redis/redis-keys.js";
-import redisClient from "./redis/redis.js";
 
 export async function cancelAllRepositoryJobs(repositoryId: string) {
   const repositoryCancelledRedisKey =

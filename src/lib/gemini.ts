@@ -25,7 +25,7 @@ type ParsedSummary = {
 };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const model = "gemini-1.5-flash";
+const model = "gemini-2.0-flash";
 
 if (!GEMINI_API_KEY) {
   throw new Error("Missing GEMINI_API_KEY environment variable.");
