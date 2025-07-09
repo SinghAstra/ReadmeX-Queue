@@ -22,67 +22,87 @@ import { directoryQueue, logQueue, summaryQueue } from "../queues/index.js";
 let dirPath: string;
 
 async function startSummaryWorker(repositoryId: string) {
-  const directoryWorkerTotalJobsKey =
-    getDirectoryWorkerTotalJobsRedisKey(repositoryId);
-  const directoryWorkerCompletedJobsKey =
-    getDirectoryWorkerCompletedJobsRedisKey(repositoryId);
-  const summaryWorkerTotalJobsKey =
-    getSummaryWorkerTotalJobsRedisKey(repositoryId);
+  try {
+    const directoryWorkerTotalJobsKey =
+      getDirectoryWorkerTotalJobsRedisKey(repositoryId);
+    const directoryWorkerCompletedJobsKey =
+      getDirectoryWorkerCompletedJobsRedisKey(repositoryId);
+    const summaryWorkerTotalJobsKey =
+      getSummaryWorkerTotalJobsRedisKey(repositoryId);
 
-  const allDirectoriesComplete = await checkCompletion(
-    directoryWorkerCompletedJobsKey,
-    directoryWorkerTotalJobsKey
-  );
-
-  if (allDirectoriesComplete) {
-    console.log("-------------------------------------------------------");
-    console.log(
-      "Inside the if of directoryWorkerCompletedJobs === directoryWorkerTotalJobs"
+    const allDirectoriesComplete = await checkCompletion(
+      directoryWorkerCompletedJobsKey,
+      directoryWorkerTotalJobsKey
     );
-    console.log(`dirPath is ${dirPath}`);
-    console.log("-------------------------------------------------------");
 
-    await logQueue.add(
-      QUEUES.LOG,
-      {
-        repositoryId,
-        status: RepositoryStatus.PROCESSING,
-        message: "🤔 Studying files to create summaries...",
-      },
-      {
-        attempts: 3,
-        backoff: {
-          type: "exponential",
-          delay: 5000,
+    if (allDirectoriesComplete) {
+      console.log("-------------------------------------------------------");
+      console.log(
+        "Inside the if of directoryWorkerCompletedJobs === directoryWorkerTotalJobs"
+      );
+      console.log(`dirPath is ${dirPath}`);
+      console.log("-------------------------------------------------------");
+
+      await logQueue.add(
+        QUEUES.LOG,
+        {
+          repositoryId,
+          status: RepositoryStatus.PROCESSING,
+          message: "🤔 Studying files to create summaries...",
         },
-      }
-    );
-
-    // Fetch the Files of the repository that do not have short summary
-    const filesWithoutSummary = await prisma.file.findMany({
-      where: { repositoryId, summary: null },
-      select: { id: true, path: true, content: true },
-    });
-
-    const batchSizeForSummary = FILE_BATCH_SIZE_FOR_AI_SUMMARY;
-
-    const totalBatchesForShortSummary = Math.ceil(
-      filesWithoutSummary.length / batchSizeForSummary
-    );
-
-    redisClient.set(summaryWorkerTotalJobsKey, totalBatchesForShortSummary);
-
-    for (let i = 0; i < filesWithoutSummary.length; i += batchSizeForSummary) {
-      const fileWithoutSummaryBatch = filesWithoutSummary.slice(
-        i,
-        i + batchSizeForSummary
+        {
+          attempts: 3,
+          backoff: {
+            type: "exponential",
+            delay: 5000,
+          },
+        }
       );
 
-      await summaryQueue.add(QUEUES.SUMMARY, {
-        repositoryId,
-        files: fileWithoutSummaryBatch,
+      // Fetch the Files of the repository that do not have summary
+      const filesWithoutSummary = await prisma.file.findMany({
+        where: { repositoryId, summary: null },
+        select: { id: true, path: true, content: true },
       });
+
+      console.log("filesWithoutSummary.length is ", filesWithoutSummary.length);
+
+      const batchSizeForSummary = FILE_BATCH_SIZE_FOR_AI_SUMMARY;
+
+      const totalBatchesForShortSummary = Math.ceil(
+        filesWithoutSummary.length / batchSizeForSummary
+      );
+      console.log(
+        "totalBatchesForShortSummary is ",
+        totalBatchesForShortSummary
+      );
+
+      redisClient.set(summaryWorkerTotalJobsKey, totalBatchesForShortSummary);
+
+      for (
+        let i = 0;
+        i < filesWithoutSummary.length;
+        i += batchSizeForSummary
+      ) {
+        const fileWithoutSummaryBatch = filesWithoutSummary.slice(
+          i,
+          i + batchSizeForSummary
+        );
+
+        console.log("Adding Job to Summary queue");
+
+        await summaryQueue.add(QUEUES.SUMMARY, {
+          repositoryId,
+          files: fileWithoutSummaryBatch,
+        });
+      }
     }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("error.stack is ", error.stack);
+      console.log("error.message is ", error.message);
+    }
+    console.log("Error occurred in start summary worker.");
   }
 }
 

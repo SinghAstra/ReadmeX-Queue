@@ -112,11 +112,15 @@ async function generateDocumentationFiles(repositoryId: string) {
 export const summaryWorker = new Worker(
   QUEUES.SUMMARY,
   async (job) => {
+    console.log("In Summary worker");
     const { repositoryId, files } = job.data;
 
     const isCancelled = await redisClient.get(
       getRepositoryCancelledRedisKey(repositoryId)
     );
+
+    console.log("files.length is ", files.length);
+
     if (isCancelled === "true") {
       console.log(`❌ Summary Worker for ${repositoryId} has been cancelled`);
       return;
@@ -128,6 +132,8 @@ export const summaryWorker = new Worker(
     try {
       // Generate summaries for this batch
       const summaries = await generateBatchSummaries(files);
+
+      console.log("summaries.length is ", summaries.length);
 
       const updateSummary = summaries.map((summary) => {
         return prisma.file.update({
