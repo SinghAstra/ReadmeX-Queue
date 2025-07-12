@@ -34,8 +34,8 @@ if (!GEMINI_API_KEY) {
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 async function sleep(times: number) {
-  console.log(`Sleeping for ${2 * times} seconds...`);
-  await new Promise((resolve) => setTimeout(resolve, 2000 * times));
+  console.log(`Sleeping for ${60 * times} seconds...`);
+  await new Promise((resolve) => setTimeout(resolve, 60000 * times));
 }
 
 export async function handleAtomicRateLimit() {
@@ -147,6 +147,8 @@ export async function generateBatchSummaries(
         };
       });
 
+      console.log("parsedSummaries is ", parsedSummaries);
+
       return parsedSummaries;
     } catch (error) {
       if (error instanceof Error) {
@@ -191,6 +193,15 @@ export async function generateBatchSummaries(
         console.log(
           `GoogleGenerativeAI Error : Syntax Error occurred. Trying again for ${i} time`
         );
+        sleep(i + 1);
+        console.log("--------------------------------");
+        continue;
+      }
+
+      if (error instanceof Error) {
+        console.log("--------------------------------");
+        console.log(`Unexpected Error occurred. Trying again for ${i} time`);
+        sleep(i + 1);
         console.log("--------------------------------");
         continue;
       }
@@ -277,7 +288,7 @@ export async function generateRepositoryReadme(repositoryId: string) {
         throw new Error("Invalid repository overview format");
       }
 
-      // console.log("readmeContent is ", response.text);
+      console.log("readmeContent is ", response.text);
 
       return response.text;
     } catch (error) {
@@ -323,6 +334,14 @@ export async function generateRepositoryReadme(repositoryId: string) {
           } time --generateBatchSummaries`
         );
         sleep(i + 1);
+        continue;
+      }
+
+      if (error instanceof Error) {
+        console.log("--------------------------------");
+        console.log(`Unexpected Error occurred. Trying again for ${i} time`);
+        sleep(i + 1);
+        console.log("--------------------------------");
         continue;
       }
 
