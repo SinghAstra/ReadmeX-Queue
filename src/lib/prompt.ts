@@ -64,4 +64,4 @@ You will receive:
 - Helpful and welcoming to contributors
 - Focus on practical utility over marketing language
 
-Generate a README that makes a new developer think I understand what this does, why it exists, and how to work with it within 2-3 minutes of reading.`;
+Generate a README wrapped in triple single quotes mdx that makes a new developer think I understand what this does, why it exists, and how to work with it within 2-3 minutes of reading.`;
