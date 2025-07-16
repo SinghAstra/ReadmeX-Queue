@@ -284,13 +284,25 @@ export async function generateRepositoryReadme(repositoryId: string) {
         },
       });
 
-      if (!response || !response.text) {
-        throw new Error("Invalid repository overview format");
+      let readme = response.text;
+
+      console.log("readme is ", readme);
+
+      if (!readme) {
+        throw new Error("Invalid readme format");
       }
 
-      console.log("readmeContent is ", response.text);
+      readme = readme.trim();
+      // Clean up response
+      if (readme.startsWith("```mdx")) {
+        console.log("Inside readme starts with ```mdx");
+        readme = readme
+          .replace(/^```(mdx)\s*/, "")
+          .replace(/```$/, "")
+          .trim();
+      }
 
-      return response.text;
+      return readme;
     } catch (error) {
       if (error instanceof Error) {
         console.log("--------------------------------");
@@ -301,12 +313,13 @@ export async function generateRepositoryReadme(repositoryId: string) {
 
       if (
         error instanceof Error &&
-        error.message.includes("Invalid repository overview format")
+        error.message.includes("Invalid readme format")
       ) {
         console.log("--------------------------------");
         console.log(
           `GoogleGenerativeAI Error : Syntax Error occurred. Trying again for ${i} time`
         );
+        sleep(i + 1);
         console.log("--------------------------------");
         continue;
       }
